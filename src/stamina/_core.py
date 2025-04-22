@@ -8,6 +8,7 @@ import contextlib
 import datetime as dt
 import random
 import sys
+import warnings
 
 from contextlib import AbstractContextManager
 from dataclasses import dataclass, replace
@@ -650,8 +651,14 @@ def _make_stop(*, attempts: int | None, timeout: float | None) -> _t.stop_any:
         stops.append(_t.stop_after_delay(timeout))
 
     if not stops:
-        unbounded_stop_condition = "Unbounded stop condition, use `timeout=float('inf')` to intentionally retry forever"
-        raise ValueError(unbounded_stop_condition)
+        unbounded_stop_condition = (
+            "Unbounded stop condition, "
+            "use `attempts=None, timeout=float('inf')` to intentionally retry forever"
+        )
+        warnings.warn(
+            unbounded_stop_condition, DeprecationWarning, stacklevel=4
+        )
+        stops.append(_t.stop_after_delay(float("inf")))
 
     return _t.stop_any(*stops)
 

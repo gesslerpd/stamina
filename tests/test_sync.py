@@ -20,8 +20,6 @@ def test_ok(attempts, timeout, duration):
     """
     No error, no problem.
     """
-    if attempts is None and timeout is None:
-        pytest.skip("Unbounded stop condition")
 
     @stamina.retry(
         on=Exception,
@@ -229,9 +227,9 @@ def test_testing_mode():
 class TestMakeStop:
     def test_never(self):
         """
-        If all conditions are None, error.
+        If all conditions are None, warn about future error.
         """
-        with pytest.raises(ValueError):
+        with pytest.deprecated_call(match="Unbounded stop condition, use"):
             _make_stop(attempts=None, timeout=None)
 
         _make_stop(attempts=None, timeout=float("inf"))
